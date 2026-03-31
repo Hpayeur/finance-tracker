@@ -45,7 +45,9 @@ export default function Home() {
       {/* Model */}
       <div className="absolute top-0 left-0 w-full h-full ">
         <div className="container mx-auto max-w-2xl h-[80vh] rounded-3xl bg-slate-800 py-6 px-4">
-          <button className="w-10 h-10 mb-4 font-bold rounded-full bg-slate-700>X
+          <button className="w-10 h-10 mb-4 font-bold rounded-full bg-slate-700">
+            X
+          </button>
           <h3>I am A Model</h3>
         </div>
       </div>
