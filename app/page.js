@@ -1,6 +1,8 @@
 "use client";
+import { useState } from "react";
 import { currencyFormatter } from "@/app/lib/utils";
 import ExpenseCategoryItem from "@/app/components/ExpenseCategoryItem";
+import Modal from "@/app/components/Modal";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 
@@ -40,24 +42,25 @@ const DUMMY_DATA = [
 ];
 
 export default function Home() {
+  const [modalIsOpen, setModalIsopen] = useState(true);
+
   return (
     <>
-      {/* Model */}
-      <div className="absolute top-0 left-0 w-full h-full ">
-        <div className="container mx-auto max-w-2xl h-[80vh] rounded-3xl bg-slate-800 py-6 px-4">
-          <button className="w-10 h-10 mb-4 font-bold rounded-full bg-slate-700">
-            X
-          </button>
-          <h3>I am A Model</h3>
-        </div>
-      </div>
+      <Modal show={modalIsOpen} onClose={setModalIsopen}>
+        <h3>Hello, Let's Get Started! On your journey to financial freedom!</h3>
+      </Modal>
       <main className="container max-w-2xl px-6 mx-auto">
         <section className="py-3">
           <small className="text-gray-400 text-md">My Balance</small>
           <h2 className="text-4xl font-bold">{currencyFormatter(100000)}</h2>
         </section>
         <section className="flex items-center gap-2 py-3">
-          <button className="btn btn-primary">+ Expenses</button>
+          <button
+            className="btn btn-primary"
+            onClick={() => setModalIsopen(true)}
+          >
+            + Expenses
+          </button>
           <button className="btn btn-primary-outline">+ Income</button>
         </section>
 
