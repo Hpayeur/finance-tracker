@@ -1,15 +1,7 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useContext } from "react";
 import { currencyFormatter } from "@/app/lib/utils";
 
-//firebase
-import { db } from "@/app/lib/firebase/index";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  deleteDoc,
-} from "firebase/firestore";
+import { financeContext } from "@/app/lib/store/finance-context";
 
 // Icons
 import { FaRegTrashAlt } from "react-icons/fa";
@@ -18,6 +10,7 @@ import Modal from "@/app/components/Modal";
 function AddIncomeModal({ show, onClose }) {
   const amountRef = useRef();
   const descriptionRef = useRef();
+  const { income } = useContext(financeContext);
 
   // Handler functions
   const addIncomeHandler = async (e) => {
@@ -28,37 +21,11 @@ function AddIncomeModal({ show, onClose }) {
       description: descriptionRef.current.value,
       createdAt: new Date(),
     };
+    descriptionRef.current.value = "";
+    amountRef.current.value = "";
   };
 
-  const deleteIncomeEntryHandler = async (incomeId) => {
-    const docRef = doc(db, "income", incomeId);
-    try {
-      await deleteDoc(docRef);
-      setIncome((prevState) => {
-        return prevState.filter((i) => i.id !== incomeId);
-      });
-      // Update State
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  useEffect(() => {
-    const getIncomeData = async () => {
-      const collectionRef = collection(db, "income");
-      const docsSnap = await getDocs(collectionRef);
-
-      const data = docsSnap.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-          createdAt: new Date(doc.data().createdAt.toMillis()),
-        };
-      });
-      setIncome(data);
-    };
-    getIncomeData();
-  }, []);
+  const deleteIncomeEntryHandler = async (incomeId) => {};
 
   return (
     <>

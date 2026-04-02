@@ -1,6 +1,15 @@
 "use client";
-import { createContext, useState } from "react";
-import { collection, addDoc, doc, deleteDoc } from "firebase/firestore";
+import { createContext, useState, useEffect } from "react";
+
+//firebase
+import { db } from "@/app/lib/firebase/index";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
 
 export const financeContext = createContext({
   income: [],
@@ -47,6 +56,23 @@ export default function FinanceContextProvider({ children }) {
   };
 
   const values = { income, addIncomeItem, removeIncomeItem };
+
+  useEffect(() => {
+    const getIncomeData = async () => {
+      const collectionRef = collection(db, "income");
+      const docsSnap = await getDocs(collectionRef);
+
+      const data = docsSnap.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+          createdAt: new Date(doc.data().createdAt.toMillis()),
+        };
+      });
+      setIncome(data);
+    };
+    getIncomeData();
+  }, []);
 
   return (
     <financeContext.Provider value={values}>{children}</financeContext.Provider>
