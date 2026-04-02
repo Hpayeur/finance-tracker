@@ -60,6 +60,53 @@ export default function Home() {
   const amountRef = useRef();
   const descriptionRef = useRef();
 
+  // Handler functions
+  const addIncomeHandler = async (e) => {
+    e.preventDefault();
+
+    const newIncome = {
+      amount: amountRef.current.value,
+      description: descriptionRef.current.value,
+      createdAt: new Date(),
+    };
+
+    //Firebase
+    const collectionRef = collection(db, "income");
+
+    try {
+      const docSnap = await addDoc(collectionRef, newIncome);
+
+      // Update state
+      setIncome((prevState) => {
+        return [
+          ...prevState,
+          {
+            id: docSnap.id,
+            ...newIncome,
+          },
+        ];
+      });
+
+      descriptionRef.current.value = "";
+      amountRef.current.value = "";
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const deleteIncomeEntryHandler = async (incomeId) => {
+    const docRef = doc(db, "income", incomeId);
+    try {
+      await deleteDoc(docRef);
+      setIncome((prevState) => {
+        return prevState.filter((i) => i.id !== incomeId);
+      });
+      // Update State
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   useEffect(() => {
     const getIncomeData = async () => {
       const collectionRef = collection(db, "income");
