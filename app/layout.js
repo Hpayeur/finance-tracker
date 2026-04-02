@@ -1,3 +1,4 @@
+"use client";
 import "./globals.css";
 
 import FinanceContextProvider from "@/app/lib/store/finance-context";

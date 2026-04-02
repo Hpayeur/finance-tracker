@@ -1,7 +1,8 @@
 "use client";
 import { createContext, useState } from "react";
+import { collection, addDoc, doc, deleteDoc } from "firebase/firestore";
 
-const financeContext = createContext({
+export const financeContext = createContext({
   income: [],
   addIncomeItem: async () => {},
   removeIncomeItem: async () => {},
@@ -15,7 +16,8 @@ export default function FinanceContextProvider({ children }) {
 
     try {
       const docSnap = await addDoc(collectionRef, newIncome);
-      // Update State
+
+      // Update state
       setIncome((prevState) => {
         return [
           ...prevState,
@@ -25,29 +27,28 @@ export default function FinanceContextProvider({ children }) {
           },
         ];
       });
-      descriptionRef.current.value = "";
-      amountRef.current.value = "";
     } catch (error) {
       console.log(error.message);
       throw error;
     }
   };
-}
-const removeIncomeItem = async (incomeId) => {
-  const docRef = doc(db, "income", incomeId);
-  try {
-    await deleteDoc(docRef);
-    setIncome((prevState) => {
-      return prevState.filter((i) => i.id !== incomeId);
-    });
-    // Update State
-  } catch (error) {
-    console.log(error.message);
-    throw error;
-  }
-};
 
-const values = { income, addIncomeItem, removeIncomeItem };
-return (
-  <financeContext.Provider value={values}>{children}</financeContext.Provider>
-);
+  const removeIncomeItem = async (incomeId) => {
+    const docRef = doc(db, "income", incomeId);
+
+    try {
+      await deleteDoc(docRef);
+
+      setIncome((prevState) => prevState.filter((i) => i.id !== incomeId));
+    } catch (error) {
+      console.log(error.message);
+      throw error;
+    }
+  };
+
+  const values = { income, addIncomeItem, removeIncomeItem };
+
+  return (
+    <financeContext.Provider value={values}>{children}</financeContext.Provider>
+  );
+}
