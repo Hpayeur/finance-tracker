@@ -1,5 +1,7 @@
 import "./globals.css";
 
+import FinanceContextProvider from "@/app/lib/store/finance-context";
+
 import Nav from "@/app/components/Navigation";
 
 export default function RootLayout({ children }) {
@@ -8,8 +10,10 @@ export default function RootLayout({ children }) {
       {/* <head> will contain the components returned by the nearest parent head.js */}
       <head />
       <body>
-        <Nav />
-        {children}
+        <FinanceContextProvider>
+          <Nav />
+          {children}
+        </FinanceContextProvider>
       </body>
     </html>
   );
