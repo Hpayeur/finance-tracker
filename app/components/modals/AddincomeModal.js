@@ -1,4 +1,4 @@
-import { useRef, useEffect, useContext } from "react";
+import { useRef, useContext } from "react";
 import { currencyFormatter } from "@/app/lib/utils";
 
 import { financeContext } from "@/app/lib/store/finance-context";
@@ -10,7 +10,8 @@ import Modal from "@/app/components/Modal";
 function AddIncomeModal({ show, onClose }) {
   const amountRef = useRef();
   const descriptionRef = useRef();
-  const { income } = useContext(financeContext);
+  const { income, addIncomeItem, removeIncomeItem } =
+    useContext(financeContext);
 
   // Handler functions
   const addIncomeHandler = async (e) => {
@@ -21,11 +22,22 @@ function AddIncomeModal({ show, onClose }) {
       description: descriptionRef.current.value,
       createdAt: new Date(),
     };
-    descriptionRef.current.value = "";
-    amountRef.current.value = "";
+    try {
+      await addIncomeItem(newIncome);
+      descriptionRef.current.value = "";
+      amountRef.current.value = "";
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
-  const deleteIncomeEntryHandler = async (incomeId) => {};
+  const deleteIncomeEntryHandler = async (incomeId) => {
+    try {
+      await removeIncomeItem(incomeId);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <>
@@ -86,3 +98,5 @@ function AddIncomeModal({ show, onClose }) {
 }
 
 export default AddIncomeModal;
+
+//youtube : https://www.youtube.com/watch?v=un6VQmYmXHg&list=PL4HikwTaYE0Hf-F6jzDF_llm_I1mwtGUf&index=9
