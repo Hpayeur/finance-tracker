@@ -56,3 +56,5 @@ function AddIncomeModal({ show, onClose }) {
     </>
   );
 }
+
+// Youtube: https://www.youtube.com/watch?v=1ZAe6Px78yE&list=PL4HikwTaYE0Hf-F6jzDF_llm_I1mwtGUf&index=8     Video: 2:16
