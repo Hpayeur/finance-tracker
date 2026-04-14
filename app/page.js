@@ -1,26 +1,23 @@
 "use client";
 import { useState, useContext, useEffect } from "react";
 import { financeContext } from "@/app/lib/store/finance-context";
+import { authContext } from "@/app/lib/store/auth-context";
 import { currencyFormatter } from "@/app/lib/utils";
 import ExpenseCategoryItem from "@/app/components/ExpenseCategoryItem";
 import AddIncomeModal from "@/app/components/modals/AddIncomeModal";
 import AddExpensesModal from "@/app/components/modals/AddExpensesModal";
+import Signin from "@/app/components/Signin";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
-
-// green #0f0
-// blue #009
-// red #f00
-// yellow #ff0
-// purple #808
 
 export default function Home() {
   const [showAddIncomeModal, setShowAddIncomeModal] = useState(false);
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
   const [balance, setBalance] = useState(0);
   const { expenses, income } = useContext(financeContext);
+  const { user } = useContext(authContext);
 
   useEffect(() => {
     const newBalance = income.reduce((total, i) => {
@@ -31,6 +28,10 @@ export default function Home() {
     }, 0);
     setBalance(newBalance);
   }, [expenses, income]);
+
+  if (!user) {
+    return <Signin />;
+  }
 
   console.log(`page, ${setShowAddExpenseModal}`);
 
@@ -77,19 +78,13 @@ export default function Home() {
           <h3 className="text-2xl">My Expenses</h3>
           <div className="flex flex-col gap-4 mt-6">
             {expenses.map((expense) => {
-              return (
-                <ExpenseCategoryItem
-                  key={expense.id}
-                  color={expense.color}
-                  title={expense.title}
-                  total={expense.total}
-                />
-              );
+              return <ExpenseCategoryItem key={expense.id} expense={expense} />;
             })}
           </div>
         </section>
         {/* Charts */}
         <section className="py-6">
+          <a id="stats" />
           <h3 className="text-2xl">Stats</h3>
           <div className="w-1/2 mx-auto">
             <Doughnut

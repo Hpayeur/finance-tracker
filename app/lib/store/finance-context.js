@@ -1,5 +1,6 @@
 "use client";
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
+import { authContext } from "@/app/lib/store/auth-context";
 
 //firebase
 import { db } from "@/app/lib/firebase/index";
@@ -10,6 +11,8 @@ import {
   doc,
   deleteDoc,
   updateDoc,
+  query,
+  where,
 } from "firebase/firestore";
 
 export const financeContext = createContext({
@@ -19,18 +22,22 @@ export const financeContext = createContext({
   removeIncomeItem: async () => {},
   addExpenseItem: async () => {},
   addCategory: async () => {},
+  deleteExpenseItem: async () => {},
+  deleteExpenseCategory: async () => {},
 });
 
 // Function Finance Context Provider
 export default function FinanceContextProvider({ children }) {
   const [income, setIncome] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const { user } = useContext(authContext);
 
   //Add Category
   const addCategory = async (category) => {
     try {
       const collectionRef = collection(db, "expenses");
       const docSnap = await addDoc(collectionRef, {
+        uid: user.uid,
         ...category,
         items: [],
       });
@@ -39,6 +46,7 @@ export default function FinanceContextProvider({ children }) {
           ...prevExpenses,
           {
             id: docSnap.id,
+            uid: user.uid,
             items: [],
             ...category,
           },
@@ -63,6 +71,41 @@ export default function FinanceContextProvider({ children }) {
         });
         updatedExpenses[foundIndex] = { id: expenseCategoryId, ...newExpense };
         return updatedExpenses;
+      });
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const deleteExpenseItem = async (updatedExpense, expenseCategoryId) => {
+    try {
+      const docRef = doc(db, "expenses", expenseCategoryId);
+      await updateDoc(docRef, {
+        ...updatedExpense,
+      });
+      setExpenses((prevExpenses) => {
+        const updatedExpenses = [...prevExpenses];
+        const pos = updatedExpenses.findIndex(
+          (ex) => ex.id === expenseCategoryId,
+        );
+        updatedExpenses[pos].items = [...updatedExpense.items];
+        updatedExpenses[pos].total = updatedExpense.total;
+        return updatedExpenses;
+      });
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const deleteExpenseCategory = async (expenseCategoryId) => {
+    try {
+      const docRef = doc(db, "expenses", expenseCategoryId);
+      await deleteDoc(docRef);
+      setExpenses((prevExpenses) => {
+        const updatedExpenses = prevExpenses.filter(
+          (expense) => expense.id !== expenseCategoryId,
+        );
+        return [...updatedExpenses];
       });
     } catch (error) {
       throw error;
@@ -114,12 +157,18 @@ export default function FinanceContextProvider({ children }) {
     removeIncomeItem,
     addExpenseItem,
     addCategory,
+    deleteExpenseItem,
+    deleteExpenseCategory,
   };
 
   useEffect(() => {
+    if (!user) return;
+
+    // Get Income Data
     const getIncomeData = async () => {
       const collectionRef = collection(db, "income");
-      const docsSnap = await getDocs(collectionRef);
+      const q = query(collectionRef, where("uid", "==", user.uid));
+      const docsSnap = await getDocs(q);
 
       const data = docsSnap.docs.map((doc) => {
         return {
@@ -134,7 +183,8 @@ export default function FinanceContextProvider({ children }) {
     // Get Expenses Data
     const getExpensesData = async () => {
       const collectionRef = collection(db, "expenses");
-      const docsSnap = await getDocs(collectionRef);
+      const q = query(collectionRef, where("uid", "==", user.uid));
+      const docsSnap = await getDocs(q);
 
       const data = docsSnap.docs.map((doc) => {
         return {
@@ -147,7 +197,7 @@ export default function FinanceContextProvider({ children }) {
 
     getIncomeData();
     getExpensesData();
-  }, []);
+  }, [user]);
 
   return (
     <financeContext.Provider value={values}>{children}</financeContext.Provider>

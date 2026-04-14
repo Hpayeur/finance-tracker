@@ -3,6 +3,7 @@ import { useState, useContext, useRef } from "react";
 import { financeContext } from "@/app/lib/store/finance-context";
 import { v4 as uuidv4 } from "uuid";
 import Modal from "@/app/components/Modal";
+import { toast } from "react-toastify";
 
 // Function to Add const Value's
 function AddExpensesModal({ show, onClose }) {
@@ -37,8 +38,10 @@ function AddExpensesModal({ show, onClose }) {
       setExpenseAmount("");
       setSelectedCategory(null);
       onClose();
+      toast.success("Expense Item Added!");
     } catch (error) {
       console.log(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -48,9 +51,11 @@ function AddExpensesModal({ show, onClose }) {
     const color = colorRef.current.value;
     try {
       await addCategory({ title, color, total: 0 });
+      toast.success("Category created!");
       setShowAddExpense(false);
     } catch (error) {
       console.log(error.message);
+      toast.error(error.message);
     }
   };
   console.log(`addExpense, ${onClose}`);
